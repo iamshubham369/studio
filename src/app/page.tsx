@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { Logo } from '@/components/icons/logo';
 
 const features = [
   {
@@ -60,31 +61,26 @@ const features = [
 export default function Home() {
   return (
     <div className="flex flex-col gap-8">
-      <Card className="w-full overflow-hidden">
-        <div className="grid md:grid-cols-2">
-          <div className="p-8 md:p-12 flex flex-col justify-center">
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-4 font-headline">
-              Welcome to CampusZen
-            </h1>
-            <p className="text-muted-foreground mb-6 text-lg">
-              Your personal space for mental wellness and psychological support. We're here to help you navigate the challenges of student life.
-            </p>
-            <div className="flex gap-4">
-              <Button asChild size="lg">
-                <Link href="/mood-tracker">Track Your Mood <ArrowRight className="ml-2 h-5 w-5" /></Link>
-              </Button>
-            </div>
-          </div>
-          <div className="hidden md:block">
-            <Image
-              src="https://picsum.photos/seed/4/1200/800"
-              alt="Serene campus environment"
-              width={1200}
-              height={800}
-              className="h-full w-full object-cover"
-              data-ai-hint="serene campus"
+      <Card className="w-full overflow-hidden relative text-white">
+         <Image
+              src="https://picsum.photos/seed/hero/1200/500"
+              alt="Serene abstract background"
+              fill
+              className="object-cover"
+              data-ai-hint="serene abstract"
             />
-          </div>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative p-8 md:p-12 h-[400px] flex flex-col justify-center items-center text-center">
+            <Logo className="h-20 w-20 mb-4 text-white drop-shadow-lg" />
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 font-headline drop-shadow-md">
+              Your Mental Wellness Journey Starts Here
+            </h1>
+            <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 drop-shadow-sm">
+                Gain insight into your mental health with our free and confidential assessment. Understand your stress, anxiety, and mood patterns.
+            </p>
+            <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90">
+                <Link href="/assessment">Take Free Assessment <ArrowRight className="ml-2 h-5 w-5" /></Link>
+            </Button>
         </div>
       </Card>
 
