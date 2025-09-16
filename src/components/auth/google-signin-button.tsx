@@ -6,6 +6,7 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client-app';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
@@ -43,18 +44,16 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 
 export function GoogleSigninButton() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSignIn = async () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      // Handle successful sign-in, e.g., redirect or update UI
-      console.log('Successfully signed in!');
-      // For now, we just log it. In a real app, you'd redirect.
+      router.push('/');
     } catch (error) {
       console.error('Error signing in with Google', error);
-      // Handle errors here, such as displaying a notification to the user
     } finally {
       setIsLoading(false);
     }

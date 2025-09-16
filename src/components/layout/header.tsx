@@ -3,6 +3,7 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { Logo } from '../icons/logo';
+import { UserNav } from './user-nav';
 
 export function Header() {
   return (
@@ -14,6 +15,7 @@ export function Header() {
           <span className="font-headline text-lg">CampusZen</span>
         </Link>
       </div>
+      <UserNav />
     </header>
   );
 }
