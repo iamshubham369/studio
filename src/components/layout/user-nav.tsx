@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -31,11 +32,7 @@ export function UserNav() {
   };
 
   if (!user) {
-    return (
-      <Button asChild>
-        <Link href="/login">Login</Link>
-      </Button>
-    );
+    return null;
   }
 
   return (
