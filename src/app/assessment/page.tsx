@@ -7,11 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, ArrowRight, ArrowLeft, RefreshCw, AlertCircle } from 'lucide-react';
-import { getAssessmentResult } from './actions';
+import { getAssessmentResult, type AssessmentResult } from './actions';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
-import type { AssessmentResult } from '@/ai/flows/mental-health-assessment';
 
 const questions = [
   { id: 'q1', text: "Over the last 2 weeks, how often have you been bothered by feeling nervous, anxious, or on edge?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"], category: "Anxiety" },

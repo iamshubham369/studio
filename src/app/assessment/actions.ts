@@ -1,7 +1,9 @@
 // src/app/assessment/actions.ts
 'use server';
 
-import { analyzeAssessment, type AssessmentInput } from "@/ai/flows/mental-health-assessment";
+import { analyzeAssessment, type AssessmentInput, type AssessmentResult as AIResult } from "@/ai/flows/mental-health-assessment";
+
+export type AssessmentResult = AIResult;
 
 export async function getAssessmentResult(input: AssessmentInput) {
   try {
