@@ -9,6 +9,7 @@ import {
   Users,
   ClipboardCheck,
   Leaf,
+  BookText,
 } from 'lucide-react';
 
 export const NAV_LINKS = [
@@ -16,6 +17,7 @@ export const NAV_LINKS = [
   { href: '/assessment', label: 'Assessment', icon: ClipboardCheck },
   { href: '/mood-tracker', label: 'Mood Tracker', icon: HeartPulse },
   { href: '/mood-garden', label: 'Mood Garden', icon: Leaf },
+  { href: '/diary', label: 'Diary', icon: BookText },
   { href: '/chatbot', label: 'AI Chatbot', icon: MessageSquare },
   { href: '/peer-support', label: 'Peer Support', icon: Users },
   { href: '/resources', label: 'Resources', icon: Sparkles },
