@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { SidebarProvider, Sidebar } from '@/components/ui/sidebar';
 import { MainNav } from '@/components/layout/main-nav';
 import { Header } from '@/components/layout/header';
+import { FloatingChatbot } from '@/components/chatbot/floating-chatbot';
 
 export const metadata: Metadata = {
   title: 'CampusZen',
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </div>
         </SidebarProvider>
         <Toaster />
+        <FloatingChatbot />
       </body>
     </html>
   );
