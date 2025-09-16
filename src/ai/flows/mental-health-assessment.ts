@@ -17,7 +17,7 @@ const AssessmentAnswerSchema = z.object({
   answer: z.string(),
 });
 
-export const AssessmentInputSchema = z.object({
+const AssessmentInputSchema = z.object({
   answers: z.array(AssessmentAnswerSchema).describe('An array of questions and the user\'s answers.'),
 });
 export type AssessmentInput = z.infer<typeof AssessmentInputSchema>;
@@ -29,7 +29,7 @@ const CategoryScoreSchema = z.object({
     feedback: z.string().describe("Personalized feedback and interpretation of the score for this category."),
 });
 
-export const AssessmentResultSchema = z.object({
+const AssessmentResultSchema = z.object({
   overallFeedback: z.string().describe("A general summary and supportive feedback based on all answers."),
   categoryScores: z.array(CategoryScoreSchema).describe("An array of scores and feedback for each mental health category."),
   isHighRisk: z.boolean().describe("A flag indicating if the user's responses suggest a high risk of severe mental health issues, warranting professional help."),
