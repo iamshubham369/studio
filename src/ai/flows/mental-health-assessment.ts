@@ -46,7 +46,7 @@ const prompt = ai.definePrompt({
   output: {schema: AssessmentResultSchema},
   prompt: `You are an empathetic AI assistant designed to analyze a student's mental health assessment. Your task is to provide a supportive and insightful analysis of their responses. Do not give a medical diagnosis.
 
-Analyze the following question-answer pairs to identify patterns related to anxiety, depression, and stress. The answers are provided as a JSON string.
+Analyze the following question-answer pairs to identify patterns related to anxiety, depression, and stress.
 
 For each category (Anxiety, Depression, Stress), calculate a score from 0 to 100 based on the severity and frequency of symptoms reported in the answers. A higher score means more severe symptoms. Provide brief, constructive feedback for each category.
 
