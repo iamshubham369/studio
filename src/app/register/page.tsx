@@ -10,22 +10,22 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { signInUser } from './actions';
+import { signUpUser } from '../login/actions';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPending, startTransition] = useTransition();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
-      const result = await signInUser(email, password);
+      const result = await signUpUser(email, password);
       if (result.success) {
-        toast({ title: 'Success', description: 'Logged in successfully!' });
-        router.push('/');
+        toast({ title: 'Success', description: 'Account created successfully! Please log in.' });
+        router.push('/login');
       } else {
         toast({
           title: 'Error',
@@ -40,13 +40,13 @@ export default function LoginPage() {
     <div className="flex items-center justify-center py-12">
       <Card className="mx-auto max-w-sm w-full">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">Login</CardTitle>
+          <CardTitle className="text-2xl font-headline">Sign Up</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your information to create an account
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="grid gap-4">
+          <form onSubmit={handleRegister} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -60,9 +60,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-              </div>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -73,13 +71,13 @@ export default function LoginPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? <Loader2 className="animate-spin" /> : 'Login'}
+              {isPending ? <Loader2 className="animate-spin" /> : 'Create an account'}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="underline">
-              Sign up
+            Already have an account?{' '}
+            <Link href="/login" className="underline">
+              Sign in
             </Link>
           </div>
         </CardContent>
