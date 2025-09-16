@@ -32,8 +32,12 @@ export default function ProfilePage() {
   const [isPasswordPending, startPasswordTransition] = useTransition();
 
   useEffect(() => {
-    if(user?.displayName) {
+    if (user) {
+      if (user.displayName) {
         setDisplayName(user.displayName);
+      } else if (user.email) {
+        setDisplayName(user.email.split('@')[0]);
+      }
     }
   }, [user]);
 
@@ -82,7 +86,9 @@ export default function ProfilePage() {
             <CardTitle className="font-headline">Profile</CardTitle>
           </CardHeader>
           <CardContent>
-            <Loader2 className="animate-spin" />
+            <div className="flex justify-center py-8">
+              <Loader2 className="animate-spin h-8 w-8 text-primary" />
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -127,7 +133,7 @@ export default function ProfilePage() {
                 <Avatar className="h-24 w-24">
                     <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
                     <AvatarFallback className="text-3xl">
-                    {user.displayName?.[0] ?? user.email?.[0]?.toUpperCase() ?? 'U'}
+                    {displayName?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? 'U'}
                     </AvatarFallback>
                 </Avatar>
                 <Button size="icon" className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full" variant="secondary" disabled>
@@ -136,7 +142,7 @@ export default function ProfilePage() {
                 </Button>
             </div>
             <div>
-                <p className="font-semibold text-lg">{user.displayName ?? 'Anonymous User'}</p>
+                <p className="font-semibold text-lg">{displayName ?? 'Anonymous User'}</p>
                 <p className="text-muted-foreground">{user.email}</p>
                  <p className="text-xs text-muted-foreground mt-2">Avatar editing coming soon!</p>
             </div>
@@ -161,7 +167,7 @@ export default function ProfilePage() {
              </div>
         </CardContent>
         <CardContent>
-             <Button onClick={handleUpdateName} disabled={isNamePending}>
+             <Button onClick={handleUpdateName} disabled={isNamePending || !displayName.trim()}>
                 {isNamePending && <Loader2 className="animate-spin mr-2" />}
                 Save Changes
             </Button>
@@ -171,7 +177,7 @@ export default function ProfilePage() {
       <Card>
         <CardHeader>
             <CardTitle>Change Password</CardTitle>
-            <CardDescription>Update your account password. You will be logged out after a successful change.</CardDescription>
+            <CardDescription>For security, you may be required to log in again after changing your password.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="grid gap-2">
