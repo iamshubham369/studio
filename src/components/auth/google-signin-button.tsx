@@ -41,7 +41,6 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
     );
 }
 
-
 export function GoogleSigninButton() {
   const [isLoading, setIsLoading] = useState(false);
 
