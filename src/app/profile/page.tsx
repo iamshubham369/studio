@@ -19,9 +19,10 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Camera } from 'lucide-react';
 import { updateDisplayName, updateUserPassword } from './actions';
+import Link from 'next/link';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { toast } = useToast();
 
   const [displayName, setDisplayName] = useState('');
@@ -74,7 +75,7 @@ export default function ProfilePage() {
     });
   };
 
-  if (!user) {
+  if (loading) {
     return (
       <div className="flex justify-center items-start pt-12">
         <Card className="w-full max-w-2xl">
@@ -87,6 +88,24 @@ export default function ProfilePage() {
         </Card>
       </div>
     );
+  }
+
+  if (!user) {
+    return (
+       <div className="flex justify-center items-start pt-12">
+        <Card className="w-full max-w-2xl text-center">
+          <CardHeader>
+            <CardTitle className="font-headline">Profile</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p>You must be logged in to view your profile.</p>
+            <Button asChild>
+                <Link href="/login">Login</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
