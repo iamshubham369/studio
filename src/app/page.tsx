@@ -62,17 +62,8 @@ const features = [
   },
 ];
 
-const profileFeature = {
-    icon: <User className="h-8 w-8 text-primary" />,
-    title: 'My Profile',
-    description: 'View and manage your personal information and settings.',
-    href: '/profile',
-};
-
-
 export default function Home() {
   const { user } = useAuth();
-  const allFeatures = user ? [profileFeature, ...features] : features;
 
   return (
     <div className="flex flex-col gap-8">
@@ -100,7 +91,7 @@ export default function Home() {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {allFeatures.map((feature) => (
+        {features.map((feature) => (
           <Card key={feature.title} className="flex flex-col transition-transform transform hover:-translate-y-1 hover:shadow-lg">
             <CardHeader className="flex-row items-center gap-4 space-y-0 pb-4">
               <div className="bg-secondary p-3 rounded-full">
