@@ -10,7 +10,6 @@ import {
   ClipboardCheck,
   Leaf,
   BookText,
-  Sprout,
   User,
 } from 'lucide-react';
 
