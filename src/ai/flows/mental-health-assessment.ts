@@ -1,4 +1,3 @@
-
 // src/ai/flows/mental-health-assessment.ts
 'use server';
 
@@ -55,10 +54,7 @@ Then, provide a supportive overall feedback summary.
 
 Finally, based on the answers, determine if the user is at high risk. Set the 'isHighRisk' flag to true if responses indicate severe distress, thoughts of self-harm, or an inability to function.
 
-User's Assessment Answers:
-{{{json answers}}}
-
-Please respond with the structured JSON output.
+The user's assessment answers are provided in the 'answers' field of the input object. Please process them.
 `,
 });
 
@@ -70,6 +66,9 @@ const mentalHealthAssessmentFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error("The AI model did not return a valid output.");
+    }
+    return output;
   }
 );
