@@ -1,3 +1,4 @@
+
 // src/app/assessment/page.tsx
 'use client';
 
@@ -7,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, ArrowRight, ArrowLeft, RefreshCw, AlertCircle } from 'lucide-react';
-import { getAssessmentResult, type AssessmentResult } from './actions';
+import { getAssessmentResult, type AssessmentResult, type AssessmentInput } from './actions';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
@@ -50,7 +51,7 @@ export default function AssessmentPage() {
   const handleSubmit = () => {
     setError(null);
     startTransition(async () => {
-      const assessmentData = {
+      const assessmentData: AssessmentInput = {
         answers: Object.entries(answers).map(([questionId, answer]) => ({
           question: questions.find(q => q.id === questionId)?.text || '',
           answer: answer,
