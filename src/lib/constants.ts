@@ -24,6 +24,7 @@ export const NAV_LINKS = [
   { href: '/resources', label: 'Resources', icon: Sparkles },
   { href: '/relax', label: 'Relaxation', icon: Wind },
   { href: '/faq', label: 'FAQ', icon: HelpCircle },
+  { href: '/profile', label: 'Profile', icon: User },
   { href: '/emergency', label: 'Emergency', icon: Phone },
 ];
 
