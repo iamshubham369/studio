@@ -8,12 +8,14 @@ import {
   LayoutDashboard,
   Users,
   ClipboardCheck,
+  Leaf,
 } from 'lucide-react';
 
 export const NAV_LINKS = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/assessment', label: 'Assessment', icon: ClipboardCheck },
   { href: '/mood-tracker', label: 'Mood Tracker', icon: HeartPulse },
+  { href: '/mood-garden', label: 'Mood Garden', icon: Leaf },
   { href: '/chatbot', label: 'AI Chatbot', icon: MessageSquare },
   { href: '/peer-support', label: 'Peer Support', icon: Users },
   { href: '/resources', label: 'Resources', icon: Sparkles },
