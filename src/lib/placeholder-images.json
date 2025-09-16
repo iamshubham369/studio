@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "guided-meditation",
+      "description": "A calm nature scene with a lake and mountains for guided meditation.",
+      "imageUrl": "https://picsum.photos/seed/10/600/400",
+      "imageHint": "calm lake"
+    },
+    {
+      "id": "breathing-exercise",
+      "description": "Abstract calm waves representing breathing exercises.",
+      "imageUrl": "https://picsum.photos/seed/11/600/400",
+      "imageHint": "abstract waves"
+    },
+    {
+      "id": "mindfulness-activity",
+      "description": "A person sitting in a meditative pose.",
+      "imageUrl": "https://picsum.photos/seed/12/600/400",
+      "imageHint": "meditating person"
+    }
+  ]
 }
