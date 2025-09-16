@@ -5,16 +5,38 @@
  * @fileOverview AI flow to analyze mental health assessment responses and provide feedback.
  *
  * - analyzeAssessment - A function that takes assessment answers and returns analysis.
+ * - AssessmentInput - The input type for the analyzeAssessment function.
+ * - AssessmentResult - The return type for the analyzeAssessment function.
  */
 
 import {ai} from '@/ai/genkit';
-import type { AssessmentInput, AssessmentResult } from '@/app/assessment/actions';
-import { AssessmentInputSchema, AssessmentResultSchema } from '@/app/assessment/actions';
+import {z} from 'genkit';
 
+// Zod Schemas
+const AssessmentAnswerSchema = z.object({
+  question: z.string(),
+  answer: z.string(),
+});
 
-export async function analyzeAssessment(input: AssessmentInput): Promise<AssessmentResult> {
-  return mentalHealthAssessmentFlow(input);
-}
+export const AssessmentInputSchema = z.object({
+  answers: z.array(AssessmentAnswerSchema).describe("An array of questions and the user's answers."),
+});
+
+const CategoryScoreSchema = z.object({
+    category: z.string().describe("The mental health category (e.g., 'Anxiety', 'Depression', 'Stress')."),
+    score: z.number().describe("A score from 0 to 100 for the category, where higher indicates more severe symptoms."),
+    feedback: z.string().describe("Personalized feedback and interpretation of the score for this category."),
+});
+
+export const AssessmentResultSchema = z.object({
+  overallFeedback: z.string().describe("A general summary and supportive feedback based on all answers."),
+  categoryScores: z.array(CategoryScoreSchema).describe("An array of scores and feedback for each mental health category."),
+  isHighRisk: z.boolean().describe("A flag indicating if the user's responses suggest a high risk of severe mental health issues, warranting professional help."),
+});
+
+// Types
+export type AssessmentInput = z.infer<typeof AssessmentInputSchema>;
+export type AssessmentResult = z.infer<typeof AssessmentResultSchema>;
 
 const prompt = ai.definePrompt({
   name: 'mentalHealthAssessmentPrompt',
@@ -48,3 +70,8 @@ const mentalHealthAssessmentFlow = ai.defineFlow(
     return output;
   }
 );
+
+
+export async function analyzeAssessment(input: AssessmentInput): Promise<AssessmentResult> {
+  return mentalHealthAssessmentFlow(input);
+}
