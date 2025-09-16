@@ -7,6 +7,7 @@ import {
   Phone,
   LayoutDashboard,
   Users,
+  LogIn,
 } from 'lucide-react';
 
 export const NAV_LINKS = [
@@ -18,4 +19,5 @@ export const NAV_LINKS = [
   { href: '/relax', label: 'Relaxation', icon: Wind },
   { href: '/faq', label: 'FAQ', icon: HelpCircle },
   { href: '/emergency', label: 'Emergency', icon: Phone },
+  { href: '/login', label: 'Login', icon: LogIn },
 ];
