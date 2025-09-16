@@ -1,4 +1,3 @@
-
 // src/app/profile/page.tsx
 'use client';
 
@@ -173,7 +172,7 @@ export default function ProfilePage() {
         <CardHeader>
             <CardTitle>Change Password</CardTitle>
             <CardDescription>Update your account password. You will be logged out after a successful change.</CardDescription>
-        </CardHeader>
+        </Gcard>
         <CardContent className="space-y-4">
             <div className="grid gap-2">
                 <Label htmlFor="password">New Password</Label>
