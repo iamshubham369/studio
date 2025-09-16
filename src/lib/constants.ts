@@ -38,5 +38,3 @@ export const CHALLENGES = [
   { id: 'log_5_happy', title: 'Spread Joy', description: 'Log "Happy" 5 times.', xp: 20, goal: 5 },
   { id: 'log_all_moods', title: 'Full Spectrum', description: 'Log every type of mood at least once.', xp: 50, goal: 5 },
 ];
-
-export { User };
