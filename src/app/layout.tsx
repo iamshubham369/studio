@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { PT_Sans } from 'next/font/google';
 import './globals.css';
@@ -5,12 +6,13 @@ import { Toaster } from '@/components/ui/toaster';
 import { SidebarProvider, Sidebar } from '@/components/ui/sidebar';
 import { MainNav } from '@/components/layout/main-nav';
 import { Header } from '@/components/layout/header';
-import { FloatingChatbot } from '@/components/chatbot/floating-chatbot';
+import { ClientLayout } from '@/components/layout/client-layout';
 
 const ptSans = PT_Sans({
   subsets: ['latin'],
   weight: ['400', '700'],
   variable: '--font-body',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -34,7 +36,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </div>
         </SidebarProvider>
         <Toaster />
-        <FloatingChatbot />
+        <ClientLayout />
       </body>
     </html>
   );

@@ -1,9 +1,12 @@
+
 'use client';
 
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { Logo } from '../icons/logo';
-import { UserNav } from './user-nav';
+import dynamic from 'next/dynamic';
+
+const UserNav = dynamic(() => import('./user-nav').then(mod => mod.UserNav), { ssr: false });
 
 export function Header() {
   return (
