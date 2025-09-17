@@ -14,7 +14,7 @@ import {
   RadarChart,
   ResponsiveContainer,
 } from 'recharts';
-import type { AssessmentAnalysisOutput } from '@/ai/flows/assessment-analysis';
+import type { AssessmentAnalysisOutput } from '@/ai/schemas/assessment-analysis';
 
 type ResultData = AssessmentAnalysisOutput;
 
@@ -33,8 +33,12 @@ export default function ResultsPage() {
   useEffect(() => {
     const resultsJson = sessionStorage.getItem('assessmentResults');
     if (resultsJson) {
-      setData(JSON.parse(resultsJson));
-      // sessionStorage.removeItem('assessmentResults'); // Optional: clear after reading
+      try {
+        setData(JSON.parse(resultsJson));
+      } catch (error) {
+        console.error("Failed to parse assessment results:", error);
+        router.replace('/assessment');
+      }
     } else {
       // Handle case where user lands here directly
       router.replace('/assessment');

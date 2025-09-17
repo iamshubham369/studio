@@ -5,40 +5,15 @@
  * @fileOverview Analyzes a user's mental wellness assessment and provides a score and detailed feedback.
  *
  * - analyzeAssessment - A function that processes assessment data.
- * - AssessmentAnalysisInput - The input type for the assessment data.
- * - AssessmentAnalysisOutput - The structured output containing scores and insights.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-export const AssessmentAnalysisInputSchema = z.object({
-  sleepQuality: z.string().describe('User rating for sleep quality'),
-  energyLevels: z.string().describe('User rating for energy levels'),
-  stressLevel: z.string().describe('User rating for stress levels'),
-  anxietyFrequency: z.string().describe('User rating for anxiety frequency'),
-  interestInActivities: z.string().describe('User rating for interest in activities'),
-  socialConnection: z.string().describe('User rating for social connection'),
-  overallMood: z.string().describe('User rating for overall mood'),
-});
-
-export type AssessmentAnalysisInput = z.infer<typeof AssessmentAnalysisInputSchema>;
-
-const AnalysisCategorySchema = z.object({
-  title: z.string().describe('The category being analyzed (e.g., "Sleep Quality").'),
-  score: z.number().min(0).max(100).describe('A score from 0-100 for this specific category.'),
-  feedback: z.string().describe('Personalized feedback and observations for this category based on the user\'s answer.'),
-});
-
-export const AssessmentAnalysisOutputSchema = z.object({
-  overallScore: z.number().min(0).max(100).describe('An overall mental wellness score from 0 to 100, calculated from all inputs.'),
-  overallSummary: z.string().describe('A brief, encouraging summary of the overall results.'),
-  categoryAnalyses: z.array(AnalysisCategorySchema).describe('An array of detailed analyses for different wellness categories like Sleep, Stress, and Mood.'),
-  nextSteps: z.array(z.string()).describe('A list of 2-3 actionable and simple suggestions for the user based on their results.'),
-});
-
-export type AssessmentAnalysisOutput = z.infer<typeof AssessmentAnalysisOutputSchema>;
-
+import {
+    AssessmentAnalysisInput,
+    AssessmentAnalysisInputSchema,
+    AssessmentAnalysisOutput,
+    AssessmentAnalysisOutputSchema
+} from '@/ai/schemas/assessment-analysis';
 
 export async function analyzeAssessment(input: AssessmentAnalysisInput): Promise<AssessmentAnalysisOutput> {
   return analyzeAssessmentFlow(input);

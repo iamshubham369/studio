@@ -20,7 +20,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { analyzeAssessment, AssessmentAnalysisInputSchema as formSchema } from '@/ai/flows/assessment-analysis';
+import { analyzeAssessment } from '@/ai/flows/assessment-analysis';
+import { AssessmentAnalysisInputSchema as formSchema } from '@/ai/schemas/assessment-analysis';
 import type { z } from 'zod';
 
 type FormData = z.infer<typeof formSchema>;
@@ -247,4 +248,3 @@ export default function AssessmentPage() {
     </div>
   );
 }
-
