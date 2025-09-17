@@ -1,8 +1,9 @@
 
 'use client';
 
+import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, type FieldName } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,8 +16,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const formSchema = z.object({
   sleepQuality: z.string().min(1, { message: 'Please select an option.' }),
@@ -27,6 +31,8 @@ const formSchema = z.object({
   socialConnection: z.string().min(1, { message: 'Please select an option.' }),
   overallMood: z.string().min(1, { message: 'Please select an option.' }),
 });
+
+type FormData = z.infer<typeof formSchema>;
 
 const questions = [
   {
@@ -108,8 +114,10 @@ const questions = [
 ];
 
 export default function AssessmentPage() {
+  const [currentStep, setCurrentStep] = useState(0);
   const { toast } = useToast();
-  const form = useForm<z.infer<typeof formSchema>>({
+  
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       sleepQuality: '',
@@ -122,65 +130,106 @@ export default function AssessmentPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const processForm = (values: FormData) => {
     // For now, we just log the values. We will process them with AI next.
     console.log(values);
     toast({
       title: 'Assessment Submitted!',
       description: 'Your results will be analyzed shortly.',
     });
-  }
+    // Here you would typically navigate to a results page
+    // router.push('/assessment/results');
+  };
+
+  const handleNext = async () => {
+    const fieldName = questions[currentStep].name;
+    const isValid = await form.trigger(fieldName as FieldName<FormData>);
+    if (isValid) {
+      setCurrentStep((prev) => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    setCurrentStep((prev) => prev - 1);
+  };
+
+  const progress = ((currentStep + 1) / questions.length) * 100;
+  const currentQuestion = questions[currentStep];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <Card className="text-center">
-        <CardHeader>
-            <CardTitle className="font-headline text-3xl">Mental Wellness Assessment</CardTitle>
-            <CardDescription>
-            This short, confidential assessment helps you understand your current well-being.
-            <br />
-            Answer the questions honestly to get the most accurate insights.
-            </CardDescription>
-        </CardHeader>
-      </Card>
+    <div className="max-w-2xl mx-auto space-y-8">
+      <div className="text-center">
+        <h1 className="font-headline text-3xl font-bold">Mental Wellness Assessment</h1>
+        <p className="text-muted-foreground mt-2">
+          This short, confidential assessment helps you understand your current well-being.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <Progress value={progress} className="h-2" />
+        <p className="text-sm text-muted-foreground text-center">Question {currentStep + 1} of {questions.length}</p>
+      </div>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {questions.map((q) => (
-            <Card key={q.name}>
-              <CardHeader>
-                <CardTitle className="text-xl">{q.label}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FormField
-                  control={form.control}
-                  name={q.name}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="space-y-2"
-                        >
-                          {q.options.map((opt) => (
-                            <FormItem key={opt.value} className="flex items-center space-x-3 space-y-0 rounded-md border p-4 transition-colors hover:bg-accent hover:text-accent-foreground has-[:checked]:bg-accent">
-                              <FormControl>
-                                <RadioGroupItem value={opt.value} />
-                              </FormControl>
-                              <FormLabel className="font-normal w-full cursor-pointer">{opt.label}</FormLabel>
-                            </FormItem>
-                          ))}
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-          ))}
-          <Button type="submit" size="lg" className="w-full">Submit for Analysis</Button>
+        <form onSubmit={form.handleSubmit(processForm)} className="overflow-hidden relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+                key={currentStep}
+                initial={{ x: '100%', opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: '-100%', opacity: 0 }}
+                transition={{ duration: 0.3 }}
+            >
+                <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl">{currentQuestion.label}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <FormField
+                    control={form.control}
+                    name={currentQuestion.name}
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormControl>
+                            <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="space-y-2"
+                            >
+                            {currentQuestion.options.map((opt) => (
+                                <FormItem key={opt.value} className="flex items-center space-x-3 space-y-0 rounded-md border p-4 transition-colors hover:bg-accent hover:text-accent-foreground has-[:checked]:bg-accent">
+                                <FormControl>
+                                    <RadioGroupItem value={opt.value} />
+                                </FormControl>
+                                <FormLabel className="font-normal w-full cursor-pointer">{opt.label}</FormLabel>
+                                </FormItem>
+                            ))}
+                            </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </CardContent>
+                </Card>
+            </motion.div>
+          </AnimatePresence>
+
+          <div className="flex justify-between mt-6">
+            <Button type="button" onClick={handlePrev} disabled={currentStep === 0} variant="outline">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Previous
+            </Button>
+            
+            {currentStep < questions.length - 1 ? (
+              <Button type="button" onClick={handleNext}>
+                Next
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button type="submit">Submit for Analysis</Button>
+            )}
+          </div>
         </form>
       </Form>
     </div>
