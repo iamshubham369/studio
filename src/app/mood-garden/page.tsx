@@ -1,14 +1,9 @@
-'use client';
 
-import { MoodGarden } from '@/components/mood-garden/mood-garden';
-import { useMoodData } from '@/lib/hooks/use-mood-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { MoodGardenClient } from '@/components/mood-garden/mood-garden-client';
 import Link from 'next/link';
-import { GardenStats } from '@/components/mood-garden/garden-stats';
 
 export default function MoodGardenPage() {
-  const { entries } = useMoodData();
-
   return (
     <div className="grid gap-8 lg:grid-cols-3">
        <div className="lg:col-span-2 space-y-8">
@@ -20,21 +15,12 @@ export default function MoodGardenPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-              {entries.length > 0 ? (
-                  <MoodGarden entries={entries} />
-              ) : (
-                  <div className="flex h-[300px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed text-center">
-                      <p className="text-muted-foreground mb-2">Your garden is empty.</p>
-                      <p className="text-sm text-muted-foreground">
-                          <Link href="/mood-tracker" className="text-primary underline">Log your mood</Link> to start planting!
-                      </p>
-                  </div>
-              )}
+              <MoodGardenClient showGardenOnly={true} />
           </CardContent>
         </Card>
       </div>
       <div className="lg:col-span-1">
-        <GardenStats moodEntries={entries} />
+        <MoodGardenClient showStatsOnly={true} />
       </div>
     </div>
   );

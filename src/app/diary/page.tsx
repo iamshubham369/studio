@@ -1,25 +1,9 @@
-// src/app/diary/page.tsx
-'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useDiaryData } from '@/lib/hooks/use-diary-data';
-import { DiaryEntryCard } from '@/components/diary/diary-entry-card';
-import { DiaryEntryForm } from '@/components/diary/diary-entry-form';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { DiaryClient } from '@/components/diary/diary-client';
 
 export default function DiaryPage() {
-  const { entries, addEntry } = useDiaryData();
-  const [isAdding, setIsAdding] = useState(false);
-
-  // Sort entries from newest to oldest
-  const sortedEntries = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-  const handleFinishEditing = (title: string, content: string) => {
-    addEntry(title, content);
-    setIsAdding(false);
-  }
-
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -29,31 +13,12 @@ export default function DiaryPage() {
             A private space for your thoughts. Your entries are saved only on this device.
           </p>
         </div>
-        {!isAdding && (
-            <Button onClick={() => setIsAdding(true)}>New Entry</Button>
-        )}
+        {/* The client component will handle showing the button */}
+        <DiaryClient showNewEntryButtonOnly={true} />
       </div>
 
-      {isAdding && (
-        <DiaryEntryForm onSave={handleFinishEditing} onCancel={() => setIsAdding(false)} />
-      )}
-
-      {sortedEntries.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {sortedEntries.map((entry) => (
-            <DiaryEntryCard key={entry.id} entry={entry} />
-          ))}
-        </div>
-      ) : (
-        !isAdding && (
-          <Card className="flex h-[300px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed text-center">
-            <CardHeader>
-                <CardTitle>Your diary is empty.</CardTitle>
-                <CardDescription>Click "New Entry" to write down your thoughts.</CardDescription>
-            </CardHeader>
-        </Card>
-        )
-      )}
+      {/* The client component will handle the form and the list of entries */}
+      <DiaryClient />
     </div>
   );
 }
