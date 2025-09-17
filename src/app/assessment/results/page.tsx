@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, ArrowLeft, AlertCircle, BarChart, Activity, Moon, Users } from 'lucide-react';
 import { runAssessmentAnalysis } from './actions';
-import type { AssessmentAnalysisOutput } from '@/ai/flows/analyze-assessment';
+import type { AssessmentAnalysisOutput } from './actions';
 import {
   PolarAngleAxis,
   PolarGrid,
