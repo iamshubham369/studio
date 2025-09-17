@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type FieldName } from 'react-hook-form';
@@ -15,14 +15,21 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { runAssessmentAnalysis } from './actions';
-import { AssessmentAnalysisInputSchema as formSchema } from '@/ai/schemas/assessment-analysis';
-import type { z } from 'zod';
+import { z } from 'zod';
+
+const formSchema = z.object({
+  sleepQuality: z.string().min(1, 'Please select an option.'),
+  energyLevels: z.string().min(1, 'Please select an option.'),
+  stressLevel: z.string().min(1, 'Please select an option.'),
+  anxietyFrequency: z.string().min(1, 'Please select an option.'),
+  interestInActivities: z.string().min(1, 'Please select an option.'),
+  socialConnection: z.string().min(1, 'Please select an option.'),
+  overallMood: z.string().min(1, 'Please select an option.'),
+});
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -107,9 +114,7 @@ const questions = [
 
 export default function AssessmentPage() {
   const [currentStep, setCurrentStep] = useState(0);
-  const { toast } = useToast();
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -125,30 +130,13 @@ export default function AssessmentPage() {
   });
 
   const processForm = (values: FormData) => {
-    toast({
-      title: 'Analyzing your results...',
-      description: 'This may take a moment. Please wait.',
-    });
-
-    startTransition(async () => {
-      try {
-        const results = await runAssessmentAnalysis(values);
-        sessionStorage.setItem('assessmentResults', JSON.stringify(results));
-        router.push('/assessment/results');
-      } catch (error) {
-        console.error('Assessment analysis failed:', error);
-        toast({
-          title: 'Analysis Failed',
-          description: 'We couldn\'t process your assessment right now. Please try again later.',
-          variant: 'destructive',
-        });
-      }
-    });
+    sessionStorage.setItem('assessmentResults', JSON.stringify(values));
+    router.push('/assessment/results');
   };
 
   const handleNext = async () => {
     const fieldName = questions[currentStep].name;
-    const isValid = await form.trigger(fieldName as FieldName<FormData>);
+    const isValid = await form.trigger(fieldName as FieldPath<FormData>);
     if (isValid) {
       setCurrentStep((prev) => prev + 1);
     }
@@ -222,24 +210,20 @@ export default function AssessmentPage() {
           </AnimatePresence>
 
           <div className="absolute bottom-0 w-full flex justify-between mt-6">
-            <Button type="button" onClick={handlePrev} disabled={currentStep === 0 || isPending} variant="outline">
+            <Button type="button" onClick={handlePrev} disabled={currentStep === 0} variant="outline">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Previous
             </Button>
             
             {currentStep < questions.length - 1 ? (
-              <Button type="button" onClick={handleNext} disabled={isPending}>
+              <Button type="button" onClick={handleNext}>
                 Next
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             ) : (
-              <Button type="submit" disabled={isPending}>
-                 {isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Sparkles className="mr-2 h-4 w-4" />
-                )}
-                Submit for Analysis
+              <Button type="submit">
+                <Sparkles className="mr-2 h-4 w-4" />
+                See Results
               </Button>
             )}
           </div>

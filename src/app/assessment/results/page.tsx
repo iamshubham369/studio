@@ -6,27 +6,9 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, ArrowLeft } from 'lucide-react';
-import {
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  RadarChart,
-  ResponsiveContainer,
-} from 'recharts';
-import type { AssessmentAnalysisOutput } from '@/ai/schemas/assessment-analysis';
-
-type ResultData = AssessmentAnalysisOutput;
-
-const categoryIcons: Record<string, string> = {
-  "Sleep & Energy": "😴",
-  "Stress & Anxiety": "😟",
-  "Mood & Interests": "😊",
-  "Social Connection": "🤝",
-};
 
 export default function ResultsPage() {
-  const [data, setData] = useState<ResultData | null>(null);
+  const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -53,72 +35,47 @@ export default function ResultsPage() {
       </div>
     );
   }
-
-  const radarChartData = data.categoryAnalyses.map(cat => ({
-    subject: cat.title.split(' & ')[0], // "Sleep", "Stress", etc.
-    score: cat.score,
-    fullMark: 100,
-  }));
-
-  const scoreColor = data.overallScore > 75 ? 'text-green-500' : data.overallScore > 50 ? 'text-yellow-500' : 'text-red-500';
+  
+  const nextSteps = [
+    "Consider exploring the 'Relaxation' section for guided breathing exercises.",
+    "Try writing down your thoughts in the private 'Diary' to clear your mind.",
+    "If you're feeling stressed, our 'AI Chatbot' can offer some quick tips.",
+    "Remember to connect with friends or family this week."
+  ];
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in-50 duration-500">
       <div className="text-center">
-        <h1 className="font-headline text-3xl font-bold">Your Wellness Snapshot</h1>
-        <p className="text-muted-foreground mt-2">{data.overallSummary}</p>
+        <h1 className="font-headline text-3xl font-bold">Thank You for Completing the Assessment</h1>
+        <p className="text-muted-foreground mt-2">Taking a moment to check in with yourself is a great step for your well-being.</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Overall Wellness Score</CardTitle>
+          <CardTitle>Your Responses</CardTitle>
+          <CardDescription>Here's a summary of the answers you provided.</CardDescription>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-8 items-center">
-          <div className="h-64 w-full">
-             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarChartData}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="subject" />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar name="Mike" dataKey="score" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.6} />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex flex-col items-center justify-center space-y-2">
-            <div className={`text-7xl font-bold ${scoreColor}`}>{data.overallScore}</div>
-            <p className="text-muted-foreground">out of 100</p>
-          </div>
+        <CardContent>
+            <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+                <li><strong>Sleep Quality:</strong> {data.sleepQuality.replace(/_/g, ' ')}</li>
+                <li><strong>Energy Levels:</strong> {data.energyLevels.replace(/_/g, ' ')}</li>
+                <li><strong>Stress Level:</strong> {data.stressLevel.replace(/_/g, ' ')}</li>
+                <li><strong>Anxiety Frequency:</strong> {data.anxietyFrequency.replace(/_/g, ' ')}</li>
+                <li><strong>Interest in Activities:</strong> {data.interestInActivities.replace(/_/g, ' ')}</li>
+                <li><strong>Social Connection:</strong> {data.socialConnection.replace(/_/g, ' ')}</li>
+                <li><strong>Overall Mood:</strong> {data.overallMood.replace(/_/g, ' ')}</li>
+            </ul>
         </CardContent>
       </Card>
       
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight font-headline mb-4">In-depth Analysis</h2>
-        <div className="grid gap-6 md:grid-cols-2">
-            {data.categoryAnalyses.map(category => (
-                <Card key={category.title}>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-3">
-                           <span className="text-2xl">{categoryIcons[category.title] || "📊"}</span>
-                           {category.title}
-                        </CardTitle>
-                        <CardDescription>Your score: {category.score}/100</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-sm">{category.feedback}</p>
-                    </CardContent>
-                </Card>
-            ))}
-        </div>
-      </div>
-      
       <Card className="bg-primary/10 border-primary/30">
           <CardHeader>
-            <CardTitle>Next Steps</CardTitle>
-            <CardDescription>Here are a few simple suggestions based on your results.</CardDescription>
+            <CardTitle>What's Next?</CardTitle>
+            <CardDescription>Based on your responses, here are a few simple suggestions you might find helpful.</CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-3">
-                {data.nextSteps.map((step, index) => (
+                {nextSteps.map((step, index) => (
                     <li key={index} className="flex items-start gap-3">
                         <CheckCircle className="h-5 w-5 mt-0.5 text-primary flex-shrink-0" />
                         <span>{step}</span>
