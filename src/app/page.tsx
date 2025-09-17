@@ -23,7 +23,7 @@ import Image from 'next/image';
 import { Logo } from '@/components/icons/logo';
 import { useAuth } from '@/hooks/use-auth';
 
-const features = [
+const baseFeatures = [
   {
     icon: <HeartPulse className="h-8 w-8 text-primary" />,
     title: 'Mood Tracker',
@@ -62,8 +62,19 @@ const features = [
   },
 ];
 
+const profileFeature = {
+  icon: <User className="h-8 w-8 text-primary" />,
+  title: 'My Profile',
+  description: 'View and manage your personal information and settings.',
+  href: '/profile',
+};
+
+
 export default function Home() {
   const { user } = useAuth();
+  
+  const features = user ? [profileFeature, ...baseFeatures] : baseFeatures;
+
 
   return (
     <div className="flex flex-col gap-8">
@@ -72,6 +83,7 @@ export default function Home() {
               src="https://picsum.photos/seed/hero/1200/500"
               alt="Serene abstract background"
               fill
+              priority
               className="object-cover"
               data-ai-hint="serene abstract"
             />
