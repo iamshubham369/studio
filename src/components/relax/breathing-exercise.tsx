@@ -54,7 +54,7 @@ export function BreathingExercise() {
           <div className="relative w-48 h-48 flex items-center justify-center">
             <div
               className={cn(
-                'absolute bg-primary rounded-full transition-all duration-[4000ms] ease-linear',
+                'absolute bg-primary rounded-full transition-all duration-4000 ease-linear',
                 currentPhase.state === 'grow' && 'w-48 h-48 opacity-100',
                 currentPhase.state === 'hold' && 'w-48 h-48 opacity-100',
                 currentPhase.state === 'shrink' && 'w-16 h-16 opacity-70'
