@@ -132,49 +132,57 @@ export default function AssessmentPage() {
   }
 
   return (
-    <Card className="max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="font-headline text-3xl">Mental Wellness Assessment</CardTitle>
-        <CardDescription>
-          This short, confidential assessment helps you understand your current well-being. Answer the questions honestly to get the most accurate insights.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {questions.map((q) => (
-              <FormField
-                key={q.name}
-                control={form.control}
-                name={q.name}
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel className="text-base font-semibold">{q.label}</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col space-y-2"
-                      >
-                        {q.options.map((opt) => (
-                          <FormItem key={opt.value} className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value={opt.value} />
-                            </FormControl>
-                            <FormLabel className="font-normal">{opt.label}</FormLabel>
-                          </FormItem>
-                        ))}
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
-            <Button type="submit">Submit for Analysis</Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+    <div className="max-w-4xl mx-auto space-y-8">
+      <Card className="text-center">
+        <CardHeader>
+            <CardTitle className="font-headline text-3xl">Mental Wellness Assessment</CardTitle>
+            <CardDescription>
+            This short, confidential assessment helps you understand your current well-being.
+            <br />
+            Answer the questions honestly to get the most accurate insights.
+            </CardDescription>
+        </CardHeader>
+      </Card>
+      
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {questions.map((q) => (
+            <Card key={q.name}>
+              <CardHeader>
+                <CardTitle className="text-xl">{q.label}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name={q.name}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="space-y-2"
+                        >
+                          {q.options.map((opt) => (
+                            <FormItem key={opt.value} className="flex items-center space-x-3 space-y-0 rounded-md border p-4 transition-colors hover:bg-accent hover:text-accent-foreground has-[:checked]:bg-accent">
+                              <FormControl>
+                                <RadioGroupItem value={opt.value} />
+                              </FormControl>
+                              <FormLabel className="font-normal w-full cursor-pointer">{opt.label}</FormLabel>
+                            </FormItem>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+          ))}
+          <Button type="submit" size="lg" className="w-full">Submit for Analysis</Button>
+        </form>
+      </Form>
+    </div>
   );
 }
