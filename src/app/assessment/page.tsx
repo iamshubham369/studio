@@ -1,36 +1,27 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type FieldName } from 'react-hook-form';
-import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-
-const formSchema = z.object({
-  sleepQuality: z.string().min(1, { message: 'Please select an option.' }),
-  energyLevels: z.string().min(1, { message: 'Please select an option.' }),
-  stressLevel: z.string().min(1, { message: 'Please select an option.' }),
-  anxietyFrequency: z.string().min(1, { message: 'Please select an option.' }),
-  interestInActivities: z.string().min(1, { message: 'Please select an option.' }),
-  socialConnection: z.string().min(1, { message: 'Please select an option.' }),
-  overallMood: z.string().min(1, { message: 'Please select an option.' }),
-});
+import { analyzeAssessment, AssessmentAnalysisInputSchema as formSchema } from '@/ai/flows/assessment-analysis';
+import type { z } from 'zod';
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -116,6 +107,8 @@ const questions = [
 export default function AssessmentPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const { toast } = useToast();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -131,14 +124,25 @@ export default function AssessmentPage() {
   });
 
   const processForm = (values: FormData) => {
-    // For now, we just log the values. We will process them with AI next.
-    console.log(values);
     toast({
-      title: 'Assessment Submitted!',
-      description: 'Your results will be analyzed shortly.',
+      title: 'Analyzing your results...',
+      description: 'This may take a moment. Please wait.',
     });
-    // Here you would typically navigate to a results page
-    // router.push('/assessment/results');
+
+    startTransition(async () => {
+      try {
+        const results = await analyzeAssessment(values);
+        sessionStorage.setItem('assessmentResults', JSON.stringify(results));
+        router.push('/assessment/results');
+      } catch (error) {
+        console.error('Assessment analysis failed:', error);
+        toast({
+          title: 'Analysis Failed',
+          description: 'We couldn\'t process your assessment right now. Please try again later.',
+          variant: 'destructive',
+        });
+      }
+    });
   };
 
   const handleNext = async () => {
@@ -171,7 +175,7 @@ export default function AssessmentPage() {
       </div>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(processForm)} className="overflow-hidden relative">
+        <form onSubmit={form.handleSubmit(processForm)} className="overflow-hidden relative min-h-[380px]">
           <AnimatePresence mode="wait">
             <motion.div
                 key={currentStep}
@@ -179,6 +183,7 @@ export default function AssessmentPage() {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: '-100%', opacity: 0 }}
                 transition={{ duration: 0.3 }}
+                className="absolute w-full"
             >
                 <Card>
                 <CardHeader>
@@ -215,19 +220,26 @@ export default function AssessmentPage() {
             </motion.div>
           </AnimatePresence>
 
-          <div className="flex justify-between mt-6">
-            <Button type="button" onClick={handlePrev} disabled={currentStep === 0} variant="outline">
+          <div className="absolute bottom-0 w-full flex justify-between mt-6">
+            <Button type="button" onClick={handlePrev} disabled={currentStep === 0 || isPending} variant="outline">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Previous
             </Button>
             
             {currentStep < questions.length - 1 ? (
-              <Button type="button" onClick={handleNext}>
+              <Button type="button" onClick={handleNext} disabled={isPending}>
                 Next
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             ) : (
-              <Button type="submit">Submit for Analysis</Button>
+              <Button type="submit" disabled={isPending}>
+                 {isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="mr-2 h-4 w-4" />
+                )}
+                Submit for Analysis
+              </Button>
             )}
           </div>
         </form>
@@ -235,3 +247,4 @@ export default function AssessmentPage() {
     </div>
   );
 }
+
