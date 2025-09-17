@@ -101,7 +101,7 @@ const questions = [
       { value: 'excellent', label: 'Excellent' },
       { value: 'good', label: 'Good' },
       { value: 'fair', label: 'Fair' },
-      { value: 'poor', label 'Poor' },
+      { value: 'poor', label: 'Poor' },
       { value: 'very_poor', label: 'Very Poor' },
     ],
   },
