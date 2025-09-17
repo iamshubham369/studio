@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, type FieldName } from 'react-hook-form';
+import { useForm, type FieldPath } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -130,7 +129,8 @@ export default function AssessmentPage() {
   });
 
   const processForm = (values: FormData) => {
-    sessionStorage.setItem('assessmentResults', JSON.stringify(values));
+    // Store answers in session storage to pass to the results page
+    sessionStorage.setItem('assessmentAnswers', JSON.stringify(values));
     router.push('/assessment/results');
   };
 

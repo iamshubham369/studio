@@ -1,97 +1,227 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Loader2, CheckCircle, ArrowLeft, AlertCircle, BarChart, Activity, Moon, Users } from 'lucide-react';
+import { runAssessmentAnalysis } from './actions';
+import type { AssessmentAnalysisOutput } from '@/ai/flows/analyze-assessment';
+import {
+  PolarAngleAxis,
+  PolarGrid,
+  Radar,
+  RadarChart,
+  ResponsiveContainer,
+} from 'recharts';
+
+function ResultsSkeleton() {
+  return (
+    <div className="space-y-8 animate-pulse">
+        <div className="text-center">
+            <div className="h-8 w-3/4 bg-muted rounded-md mx-auto"></div>
+            <div className="h-4 w-1/2 bg-muted rounded-md mx-auto mt-4"></div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-1">
+                <CardHeader className="items-center">
+                    <div className="h-6 w-2/4 bg-muted rounded-md"></div>
+                </CardHeader>
+                <CardContent className="flex justify-center items-center h-48">
+                    <div className="h-36 w-36 bg-muted rounded-full"></div>
+                </CardContent>
+            </Card>
+            <Card className="lg:col-span-2">
+                <CardHeader>
+                    <div className="h-6 w-1/4 bg-muted rounded-md"></div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="h-4 w-full bg-muted rounded-md"></div>
+                    <div className="h-4 w-5/6 bg-muted rounded-md"></div>
+                </CardContent>
+            </Card>
+        </div>
+         <Card>
+            <CardHeader>
+                <div className="h-6 w-1/3 bg-muted rounded-md"></div>
+            </CardHeader>
+            <CardContent className="grid md:grid-cols-2 gap-6">
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} className="p-4 border rounded-lg space-y-3">
+                        <div className="h-5 w-1/3 bg-muted rounded-md"></div>
+                        <div className="h-4 w-full bg-muted rounded-md"></div>
+                        <div className="h-4 w-full bg-muted rounded-md"></div>
+                    </div>
+                ))}
+            </CardContent>
+        </Card>
+    </div>
+  );
+}
+
+const iconMap: { [key: string]: React.ElementType } = {
+  default: BarChart,
+  Stress: Activity,
+  Sleep: Moon,
+  Social: Users,
+};
+
 
 export default function ResultsPage() {
-  const [data, setData] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [analysis, setAnalysis] = useState<AssessmentAnalysisOutput | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   useEffect(() => {
-    const resultsJson = sessionStorage.getItem('assessmentResults');
-    if (resultsJson) {
+    const answersJson = sessionStorage.getItem('assessmentAnswers');
+    if (answersJson) {
       try {
-        setData(JSON.parse(resultsJson));
-      } catch (error) {
-        console.error("Failed to parse assessment results:", error);
-        router.replace('/assessment');
+        const answers = JSON.parse(answersJson);
+        startTransition(async () => {
+          const result = await runAssessmentAnalysis(answers);
+          if (result.success) {
+            setAnalysis(result.data!);
+          } else {
+            setError(result.error!);
+          }
+        });
+      } catch (e) {
+        setError('Failed to parse assessment answers.');
+        console.error(e);
       }
     } else {
-      // Handle case where user lands here directly
+      // No answers, redirect to start the assessment
       router.replace('/assessment');
     }
-    setLoading(false);
   }, [router]);
+  
+  const radarChartData = analysis?.insights.map(insight => ({
+      subject: insight.title,
+      score: insight.score,
+  })) || [];
 
-  if (loading || !data) {
+  if (isPending) {
+    return <ResultsSkeleton />;
+  }
+
+  if (error) {
     return (
-      <div className="flex justify-center items-center h-full min-h-[50vh]">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center">
+        <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+        <h2 className="text-2xl font-bold mb-2">Analysis Failed</h2>
+        <p className="text-muted-foreground max-w-md mb-6">{error}</p>
+        <Button onClick={() => router.push('/assessment')} variant="outline">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Try Assessment Again
+        </Button>
       </div>
     );
   }
-  
-  const nextSteps = [
-    "Consider exploring the 'Relaxation' section for guided breathing exercises.",
-    "Try writing down your thoughts in the private 'Diary' to clear your mind.",
-    "If you're feeling stressed, our 'AI Chatbot' can offer some quick tips.",
-    "Remember to connect with friends or family this week."
-  ];
+
+  if (!analysis) {
+     return <ResultsSkeleton />;
+  }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in-50 duration-500">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in-50 duration-500">
       <div className="text-center">
-        <h1 className="font-headline text-3xl font-bold">Thank You for Completing the Assessment</h1>
-        <p className="text-muted-foreground mt-2">Taking a moment to check in with yourself is a great step for your well-being.</p>
+        <h1 className="font-headline text-3xl font-bold">Your Wellness Report</h1>
+        <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
+          Here is a summary of your self-assessment, generated by our AI assistant.
+        </p>
       </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-1 flex flex-col items-center justify-center text-center">
+            <CardHeader>
+                <CardTitle>Overall Wellness Score</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="relative h-48 w-48">
+                    <p className="absolute inset-0 flex items-center justify-center text-5xl font-bold text-primary">
+                        {analysis.overallScore}
+                    </p>
+                </div>
+                <p className="text-muted-foreground text-sm mt-2">{analysis.summary}</p>
+            </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+            <CardHeader>
+                <CardTitle>Category Breakdown</CardTitle>
+                <CardDescription>How you scored in different areas of your well-being.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                    <RadarChart data={radarChartData}>
+                        <PolarGrid />
+                        <PolarAngleAxis dataKey="subject" />
+                        <Radar 
+                            name="Score" 
+                            dataKey="score" 
+                            stroke="hsl(var(--primary))" 
+                            fill="hsl(var(--primary))" 
+                            fillOpacity={0.6} 
+                        />
+                    </RadarChart>
+                </ResponsiveContainer>
+            </CardContent>
+        </Card>
+      </div>
+
 
       <Card>
         <CardHeader>
-          <CardTitle>Your Responses</CardTitle>
-          <CardDescription>Here's a summary of the answers you provided.</CardDescription>
+            <CardTitle>AI-Generated Insights</CardTitle>
+            <CardDescription>Personalized feedback and suggestions for each category.</CardDescription>
         </CardHeader>
-        <CardContent>
-            <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
-                <li><strong>Sleep Quality:</strong> {data.sleepQuality.replace(/_/g, ' ')}</li>
-                <li><strong>Energy Levels:</strong> {data.energyLevels.replace(/_/g, ' ')}</li>
-                <li><strong>Stress Level:</strong> {data.stressLevel.replace(/_/g, ' ')}</li>
-                <li><strong>Anxiety Frequency:</strong> {data.anxietyFrequency.replace(/_/g, ' ')}</li>
-                <li><strong>Interest in Activities:</strong> {data.interestInActivities.replace(/_/g, ' ')}</li>
-                <li><strong>Social Connection:</strong> {data.socialConnection.replace(/_/g, ' ')}</li>
-                <li><strong>Overall Mood:</strong> {data.overallMood.replace(/_/g, ' ')}</li>
-            </ul>
+        <CardContent className="grid md:grid-cols-2 gap-6">
+            {analysis.insights.map(insight => {
+                 const Icon = iconMap[insight.title.split(' ')[0]] || iconMap.default;
+                 return (
+                    <div key={insight.title} className="p-4 rounded-lg border bg-card/50">
+                        <h3 className="font-headline font-semibold flex items-center mb-2">
+                            <Icon className="mr-2 h-5 w-5 text-primary" />
+                            {insight.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground italic mb-3">"{insight.summary}"</p>
+                        <p className="text-sm">{insight.feedback}</p>
+                    </div>
+                 );
+            })}
         </CardContent>
       </Card>
       
       <Card className="bg-primary/10 border-primary/30">
-          <CardHeader>
-            <CardTitle>What's Next?</CardTitle>
-            <CardDescription>Based on your responses, here are a few simple suggestions you might find helpful.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-                {nextSteps.map((step, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                        <CheckCircle className="h-5 w-5 mt-0.5 text-primary flex-shrink-0" />
-                        <span>{step}</span>
-                    </li>
-                ))}
-            </ul>
-          </CardContent>
+        <CardHeader>
+          <CardTitle>Your Next Steps</CardTitle>
+          <CardDescription>Here are a few simple, actionable suggestions based on your report.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-3">
+            {analysis.nextSteps.map((step, index) => (
+              <li key={index} className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 mt-0.5 text-primary flex-shrink-0" />
+                <span>{step}</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
       </Card>
 
       <div className="text-center">
         <Button onClick={() => router.push('/')} variant="outline">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
         </Button>
       </div>
-
     </div>
   );
 }
