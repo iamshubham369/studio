@@ -1,4 +1,3 @@
-'use client';
 
 import {
   ArrowRight,
@@ -21,7 +20,7 @@ import {
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { Logo } from '@/components/icons/logo';
-import { useAuth } from '@/hooks/use-auth';
+import { cookies } from 'next/headers';
 
 const baseFeatures = [
   {
@@ -71,9 +70,8 @@ const profileFeature = {
 
 
 export default function Home() {
-  const { user } = useAuth();
-  
-  const features = user ? [profileFeature, ...baseFeatures] : baseFeatures;
+  const isLoggedIn = cookies().has('firebase-auth-state');
+  const features = isLoggedIn ? [profileFeature, ...baseFeatures] : baseFeatures;
 
 
   return (
