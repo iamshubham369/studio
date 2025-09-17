@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Card,
@@ -10,59 +10,26 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, ArrowLeft, AlertCircle, BarChart, Activity, Moon, Users } from 'lucide-react';
-import { runAssessmentAnalysis } from './actions';
-import type { AssessmentAnalysisOutput } from './actions';
+import { CheckCircle, ArrowLeft, BarChart, Activity, Moon, Users, AlertCircle } from 'lucide-react';
 import {
   PolarAngleAxis,
   PolarGrid,
   Radar,
   RadarChart,
   ResponsiveContainer,
+  PolarRadiusAxis,
 } from 'recharts';
 
-function ResultsSkeleton() {
-  return (
-    <div className="space-y-8 animate-pulse">
-        <div className="text-center">
-            <div className="h-8 w-3/4 bg-muted rounded-md mx-auto"></div>
-            <div className="h-4 w-1/2 bg-muted rounded-md mx-auto mt-4"></div>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-1">
-                <CardHeader className="items-center">
-                    <div className="h-6 w-2/4 bg-muted rounded-md"></div>
-                </CardHeader>
-                <CardContent className="flex justify-center items-center h-48">
-                    <div className="h-36 w-36 bg-muted rounded-full"></div>
-                </CardContent>
-            </Card>
-            <Card className="lg:col-span-2">
-                <CardHeader>
-                    <div className="h-6 w-1/4 bg-muted rounded-md"></div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="h-4 w-full bg-muted rounded-md"></div>
-                    <div className="h-4 w-5/6 bg-muted rounded-md"></div>
-                </CardContent>
-            </Card>
-        </div>
-         <Card>
-            <CardHeader>
-                <div className="h-6 w-1/3 bg-muted rounded-md"></div>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-6">
-                {[...Array(4)].map((_, i) => (
-                    <div key={i} className="p-4 border rounded-lg space-y-3">
-                        <div className="h-5 w-1/3 bg-muted rounded-md"></div>
-                        <div className="h-4 w-full bg-muted rounded-md"></div>
-                        <div className="h-4 w-full bg-muted rounded-md"></div>
-                    </div>
-                ))}
-            </CardContent>
-        </Card>
-    </div>
-  );
+interface Analysis {
+  overallScore: number;
+  summary: string;
+  insights: {
+    title: string;
+    score: number;
+    summary: string;
+    feedback: string;
+  }[];
+  nextSteps: string[];
 }
 
 const iconMap: { [key: string]: React.ElementType } = {
@@ -70,13 +37,72 @@ const iconMap: { [key: string]: React.ElementType } = {
   Stress: Activity,
   Sleep: Moon,
   Social: Users,
+  Mood: Activity, // Re-using an icon
 };
+
+// This is a placeholder function to generate a plausible analysis
+// In a real scenario, this logic would live on the server and be powered by an LLM
+function generateSimpleAnalysis(answers: any): Analysis {
+    // Simple scoring logic
+    const scoreMap: { [key: string]: number } = {
+        'very_good': 100, 'good': 75, 'average': 50, 'poor': 25, 'very_poor': 0,
+        'very_high': 100, 'high': 75, 'moderate': 50, 'low': 25, 'very_low': 0,
+        'never': 100, 'rarely': 75, 'sometimes': 50, 'often': 25, 'always': 0,
+        'not_at_all': 100, 'several_days': 66, 'more_than_half_the_days': 33, 'nearly_every_day': 0,
+        'very_high_interest': 100, 'high_interest': 75, 'some_interest': 50, 'little_interest': 25, 'no_interest': 0,
+        'very_connected': 100, 'connected': 75, 'somewhat_connected': 50, 'disconnected': 25, 'very_disconnected': 0,
+        'excellent': 100
+    };
+
+    const sleepScore = scoreMap[answers.sleepQuality] ?? 50;
+    const stressScore = scoreMap[answers.stressLevel] ?? 50;
+    const moodScore = scoreMap[answers.overallMood] ?? 50;
+    const socialScore = scoreMap[answers.socialConnection] ?? 50;
+
+    const overallScore = Math.round((sleepScore + stressScore + moodScore + socialScore) / 4);
+
+    return {
+        overallScore,
+        summary: overallScore > 70 ? "You're showing great signs of well-being!" : "There are opportunities to enhance your well-being.",
+        insights: [
+            {
+                title: 'Sleep Quality',
+                score: sleepScore,
+                summary: 'Consistent sleep is key to energy and mood.',
+                feedback: 'Try to establish a regular sleep schedule, even on weekends. Avoid screens before bed to help your mind wind down naturally. A calm, dark, and cool room can significantly improve sleep quality.'
+            },
+            {
+                title: 'Stress Level',
+                score: stressScore,
+                summary: 'Managing stress is crucial for academic success.',
+                feedback: 'Incorporate short breaks into your study sessions. Techniques like deep breathing or a quick walk can help reset your focus. Identifying your main stressors is the first step to addressing them.'
+            },
+            {
+                title: 'Overall Mood',
+                score: moodScore,
+                summary: 'Your mood influences your daily outlook.',
+                feedback: 'Engaging in hobbies you enjoy can be a great mood booster. Even small moments of joy, like listening to a favorite song or spending time in nature, can make a positive difference.'
+            },
+            {
+                title: 'Social Connection',
+                score: socialScore,
+                summary: 'Strong social ties are important for mental health.',
+                feedback: 'Make an effort to connect with friends or family, even with a short text or call. Joining a club or a study group can also be a great way to meet new people with similar interests.'
+            },
+        ],
+        nextSteps: [
+            'Try one new relaxation technique from our Relax page this week.',
+            'Schedule a 15-minute walk outside at least three times this week.',
+            'Reach out to one friend or family member just to chat.',
+            'Explore the personalized resources section for more tailored advice.'
+        ]
+    };
+}
 
 
 export default function ResultsPage() {
-  const [analysis, setAnalysis] = useState<AssessmentAnalysisOutput | null>(null);
+  const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   useEffect(() => {
@@ -84,20 +110,14 @@ export default function ResultsPage() {
     if (answersJson) {
       try {
         const answers = JSON.parse(answersJson);
-        startTransition(async () => {
-          const result = await runAssessmentAnalysis(answers);
-          if (result.success) {
-            setAnalysis(result.data!);
-          } else {
-            setError(result.error!);
-          }
-        });
+        const generatedAnalysis = generateSimpleAnalysis(answers);
+        setAnalysis(generatedAnalysis);
       } catch (e) {
-        setError('Failed to parse assessment answers.');
+        setError('Failed to process your assessment. Please try again.');
         console.error(e);
       }
     } else {
-      // No answers, redirect to start the assessment
+      // If there are no answers, it's better to redirect than to show an error
       router.replace('/assessment');
     }
   }, [router]);
@@ -105,11 +125,8 @@ export default function ResultsPage() {
   const radarChartData = analysis?.insights.map(insight => ({
       subject: insight.title,
       score: insight.score,
+      fullMark: 100,
   })) || [];
-
-  if (isPending) {
-    return <ResultsSkeleton />;
-  }
 
   if (error) {
     return (
@@ -126,7 +143,12 @@ export default function ResultsPage() {
   }
 
   if (!analysis) {
-     return <ResultsSkeleton />;
+    // This can be a simple loading state or skeleton
+    return (
+        <div className="flex items-center justify-center h-full min-h-[50vh]">
+            <p>Generating your report...</p>
+        </div>
+    );
   }
 
   return (
@@ -134,7 +156,7 @@ export default function ResultsPage() {
       <div className="text-center">
         <h1 className="font-headline text-3xl font-bold">Your Wellness Report</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-          Here is a summary of your self-assessment, generated by our AI assistant.
+          Here is a summary of your self-assessment.
         </p>
       </div>
       
@@ -145,6 +167,14 @@ export default function ResultsPage() {
             </CardHeader>
             <CardContent>
                 <div className="relative h-48 w-48">
+                     <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[{ subject: 'Score', score: analysis.overallScore, fullMark: 100 }]}>
+                          <PolarGrid gridType="circle" />
+                           <PolarAngleAxis dataKey="subject" tick={false} />
+                           <PolarRadiusAxis angle={90} domain={[0, 100]} tick={false} axisLine={false} />
+                          <Radar name="Score" dataKey="score" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.6} />
+                        </RadarChart>
+                    </ResponsiveContainer>
                     <p className="absolute inset-0 flex items-center justify-center text-5xl font-bold text-primary">
                         {analysis.overallScore}
                     </p>
@@ -163,6 +193,7 @@ export default function ResultsPage() {
                     <RadarChart data={radarChartData}>
                         <PolarGrid />
                         <PolarAngleAxis dataKey="subject" />
+                        <PolarRadiusAxis domain={[0, 100]} />
                         <Radar 
                             name="Score" 
                             dataKey="score" 
@@ -179,7 +210,7 @@ export default function ResultsPage() {
 
       <Card>
         <CardHeader>
-            <CardTitle>AI-Generated Insights</CardTitle>
+            <CardTitle>Insights & Suggestions</CardTitle>
             <CardDescription>Personalized feedback and suggestions for each category.</CardDescription>
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-6">
@@ -189,7 +220,7 @@ export default function ResultsPage() {
                     <div key={insight.title} className="p-4 rounded-lg border bg-card/50">
                         <h3 className="font-headline font-semibold flex items-center mb-2">
                             <Icon className="mr-2 h-5 w-5 text-primary" />
-                            {insight.title}
+                            {insight.title} (Score: {insight.score})
                         </h3>
                         <p className="text-sm text-muted-foreground italic mb-3">"{insight.summary}"</p>
                         <p className="text-sm">{insight.feedback}</p>
