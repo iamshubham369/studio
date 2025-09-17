@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { analyzeAssessment } from '@/ai/flows/assessment-analysis';
+import { runAssessmentAnalysis } from './actions';
 import { AssessmentAnalysisInputSchema as formSchema } from '@/ai/schemas/assessment-analysis';
 import type { z } from 'zod';
 
@@ -132,7 +132,7 @@ export default function AssessmentPage() {
 
     startTransition(async () => {
       try {
-        const results = await analyzeAssessment(values);
+        const results = await runAssessmentAnalysis(values);
         sessionStorage.setItem('assessmentResults', JSON.stringify(results));
         router.push('/assessment/results');
       } catch (error) {
